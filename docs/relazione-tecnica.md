@@ -36,6 +36,15 @@ L'utente non deve saper usare una mappa né scrivere. Preme un solo grande pulsa
 
 Sempre visibili: il pulsante **SOS** (chiamata al 112), la sezione **«I miei numeri»** e la cronologia **«Dove sono andato»**.
 
+**I miei posti.** Al primo avvio l'app chiede di salvare il primo posto, di solito casa.
+- Si sceglie tra tipi predefiniti (casa, supermercato, dottore, farmacia, famiglia, chiesa) o si dà un nome libero.
+- L'indirizzo si può indicare in tre modi:
+  - con **«Sono qui adesso»**: il GPS legge la posizione e l'app la traduce in indirizzo;
+  - dicendolo a voce;
+  - scrivendolo.
+- La conferma avviene sulla mappa.
+- **«Torna a casa»** diventa il pulsante più grande della schermata principale. Ogni posto salvato si raggiunge con un tocco o a voce («portami dal dottore»), senza ricerche.
+
 **Cronologia dei posti.** Ogni arrivo viene salvato con data, ora, metri percorsi e punti pericolosi superati.
 - Nella schermata iniziale i posti più frequenti diventano pulsanti **«I tuoi posti»**: per tornare in farmacia basta un tocco, senza parlare né scrivere.
 - Dalla cronologia, **«Vai di nuovo»** ricalcola il percorso dalla posizione attuale.
@@ -130,7 +139,7 @@ Progettazione conforme al GDPR (artt. 5 e 25: minimizzazione e *privacy by desig
 - **Nessun account e nessun database.** L'app non raccoglie nome, telefono o email.
 - **La posizione resta sul telefono.** Serve solo a calcolare la distanza dai punti critici. Ai servizi di mappa (Google, TomTom) vengono inviati soltanto partenza e destinazione del singolo percorso, senza alcun identificativo dell'utente: nessun account Google è richiesto.
 - Google è un fornitore extra-UE. Il trattamento avviene secondo i termini di Google Maps Platform, con clausole contrattuali standard ed EU-US Data Privacy Framework. Per la produzione si valuterà con il DPO del Comune se l'invio di partenza e destinazione richiede una DPIA. In ogni caso è disponibile la riserva interamente europea/open (OpenStreetMap).
-- **Le statistiche e la cronologia dei posti sono salvate solo sul dispositivo** (archivio locale del browser). Si possono cancellare in qualsiasi momento, anche un posto alla volta. La cronologia non viene mai inviata al Comune né a terzi.
+- **Le statistiche, i posti salvati (compreso l'indirizzo di casa) e la cronologia sono salvati solo sul dispositivo** (archivio locale del browser). Si possono cancellare in qualsiasi momento, anche un posto alla volta. La cronologia non viene mai inviata al Comune né a terzi.
 - Un'eventuale condivisione con il Comune avverrebbe solo su consenso esplicito e solo come **totali anonimi aggregati**.
 - Nessuna profilazione, nessuna pubblicità, nessun tracciamento di terze parti.
 

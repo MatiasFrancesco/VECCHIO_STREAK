@@ -35,6 +35,14 @@ Apri `https://<IP-del-PC>:5173` dal telefono sulla stessa Wi‑Fi e accetta il c
 
 ## Demo consigliata
 
+0. Al primo avvio compare **«Benvenuto»**: si salva il primo posto (es. 🏠 Casa).
+   - Si sceglie il tipo: casa, supermercato, dottore, farmacia, famiglia, chiesa o un nome libero.
+   - Si indica dove si trova in tre modi: 📍 *Sono qui adesso* (GPS + indirizzo automatico), 🎤 a voce, o scrivendolo.
+   - Si conferma sulla mappa.
+
+   I posti salvati diventano i pulsanti principali, con **«Torna a casa»** in grande. Funzionano anche a voce: «portami dal dottore», «torna a casa».
+
+   *Per la presentazione*, salva Casa scrivendo un indirizzo (es. «Via Morani 11»): in modalità simulata «Sono qui adesso» usa il punto di partenza della demo.
 1. Premi **Municipio** (oppure il microfono e di' «portami al municipio»).
 2. Ascolta il riepilogo: distanza, punti pericolosi e cantieri sul percorso.
 3. Premi **Partiamo**. In *Impostazioni demo* puoi regolare la velocità del cammino simulato.
@@ -54,4 +62,5 @@ Per l'uso reale si passa a *GPS reale* nelle impostazioni.
 - `src/services/overpass.js` — strade principali, strisce e semafori, con riserva sullo snapshot `src/data/prevalleOsm.json`
 - `src/hooks/useProximityAlerts.js` — logica degli avvisi
 - `src/hooks/useSpeechInput.js` — comando vocale
+- `src/hooks/useSavedPlaces.js` + `src/components/SavePlaceSheet.jsx` — posti salvati (solo sul dispositivo)
 - `src/hooks/useTripHistory.js` + `src/components/HistoryPanel.jsx` — cronologia dei posti (solo sul dispositivo)

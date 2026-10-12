@@ -18,7 +18,7 @@ function getGpsOnce() {
     navigator.geolocation.getCurrentPosition(
       (p) => resolve([p.coords.latitude, p.coords.longitude]),
       reject,
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
     )
   })
 }
@@ -85,7 +85,9 @@ export default function SavePlaceSheet({ welcome, near, simulatedPos, onPreview,
     setError('')
     try {
       const r = await geocode(q, near)
-      propose({ address: r.address || r.name, pos: r.pos })
+      // per un negozio o uno studio mostro anche il nome: "MD, Via Milano 4…"
+      const withName = r.name && r.address && !r.address.startsWith(r.name) ? `${r.name}, ${r.address}` : r.address || r.name
+      propose({ address: withName, pos: r.pos })
     } catch {
       setError(`Non ho trovato "${q}". Prova ad aggiungere il numero civico o il paese.`)
       speak('Non ho trovato questo indirizzo. Riprova.')
