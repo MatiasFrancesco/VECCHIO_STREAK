@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import L from 'leaflet'
 import { Circle, MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
-import { CITY } from '../config'
+import { MAP_ZOOM } from '../config'
 import { flowTileUrl } from '../services/tomtom'
 import { HAZARD_EMOJI, PASSED_COLOR, POINT_COLOR } from './mapStyle'
 
@@ -21,6 +21,17 @@ function FitRoute({ route }) {
   return null
 }
 
+// Cambio di paese: sposto la mappa sul nuovo centro
+function Recenter({ center }) {
+  const map = useMap()
+  const key = center.join(',')
+  useEffect(() => {
+    map.setView(center, MAP_ZOOM)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, map])
+  return null
+}
+
 function FocusOn({ focus }) {
   const map = useMap()
   useEffect(() => {
@@ -37,9 +48,21 @@ function Follow({ pos, enabled }) {
   return null
 }
 
-export default function MapView({ hazards, route, points, me, follow, destination, passedIds, savedPlaces = [], focus }) {
+export default function MapView({
+  center,
+  hazards,
+  route,
+  points,
+  me,
+  follow,
+  destination,
+  passedIds,
+  savedPlaces = [],
+  focus,
+}) {
   return (
-    <MapContainer center={CITY.center} zoom={CITY.zoom} zoomControl={false} className="map">
+    <MapContainer center={center} zoom={MAP_ZOOM} zoomControl={false} className="map">
+      <Recenter center={center} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -24,7 +24,7 @@ function getGpsOnce() {
 }
 
 // Salvataggio guidato di un posto: 1) quale posto  2) dove si trova  3) conferma sulla mappa
-export default function SavePlaceSheet({ welcome, near, simulatedPos, onPreview, onSave, onClose }) {
+export default function SavePlaceSheet({ welcome, near, city, simulatedPos, onPreview, onSave, onClose }) {
   const [step, setStep] = useState('what')
   const [preset, setPreset] = useState(null)
   const [customName, setCustomName] = useState('')
@@ -84,7 +84,7 @@ export default function SavePlaceSheet({ welcome, near, simulatedPos, onPreview,
     setBusy('search')
     setError('')
     try {
-      const r = await geocode(q, near)
+      const r = await geocode(q, near, city)
       // per un negozio o uno studio mostro anche il nome: "MD, Via Milano 4…"
       const withName = r.name && r.address && !r.address.startsWith(r.name) ? `${r.name}, ${r.address}` : r.address || r.name
       propose({ address: withName, pos: r.pos })

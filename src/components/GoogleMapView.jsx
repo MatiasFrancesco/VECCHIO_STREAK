@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AdvancedMarker, AdvancedMarkerAnchorPoint, APIProvider, Circle, InfoWindow, Map, Polyline, useMap } from '@vis.gl/react-google-maps'
-import { CITY, GOOGLE_KEY, GOOGLE_MAP_ID } from '../config'
+import { GOOGLE_KEY, GOOGLE_MAP_ID, MAP_ZOOM } from '../config'
 import { HAZARD_EMOJI, PASSED_COLOR, POINT_COLOR } from './mapStyle'
 
 const ll = ([lat, lng]) => ({ lat, lng })
@@ -31,6 +31,19 @@ function FitRoute({ route }) {
   return null
 }
 
+// Cambio di paese: sposto la mappa sul nuovo centro
+function Recenter({ center }) {
+  const map = useMap()
+  const key = center.join(',')
+  useEffect(() => {
+    if (!map) return
+    map.panTo(ll(center))
+    map.setZoom(MAP_ZOOM)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, map])
+  return null
+}
+
 // Centra la mappa sul posto da confermare
 function FocusOn({ focus }) {
   const map = useMap()
@@ -53,6 +66,7 @@ function Follow({ pos, enabled }) {
 const dashed = [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#c8102e', scale: 4 }, offset: '0', repeat: '14px' }]
 
 export default function GoogleMapView({
+  center,
   hazards,
   route,
   points,
@@ -79,14 +93,15 @@ export default function GoogleMapView({
       <Map
         className="map"
         mapId={GOOGLE_MAP_ID}
-        defaultCenter={ll(CITY.center)}
-        defaultZoom={CITY.zoom}
+        defaultCenter={ll(center)}
+        defaultZoom={MAP_ZOOM}
         gestureHandling="greedy"
         disableDefaultUI
         clickableIcons={false}
         onClick={() => setInfo(null)}
       >
         <TrafficLayer />
+        <Recenter center={center} />
 
         {hazards
           .filter((h) => h.line.length > 1)

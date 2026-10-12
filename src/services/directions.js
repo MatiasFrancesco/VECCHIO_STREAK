@@ -1,18 +1,19 @@
 // Ricerca e percorso con catena di riserva: Google -> TomTom -> OpenStreetMap.
 // Se un servizio non risponde durante la passeggiata, l'app continua a funzionare.
-import { CITY } from '../config'
+import { DEFAULT_CITY } from '../config'
 import { googleGeocode, googleReverse, googleRoute, hasGoogle } from './google'
 import { osmGeocode, osmReverse, osmRoute } from './osm'
 import { hasTomTom, ttGeocode, ttRoute } from './tomtom'
 
 const providers = (google, tomtom, osm) => [hasGoogle && google, hasTomTom && tomtom, osm].filter(Boolean)
 
-export async function geocode(query, near = CITY.center) {
+export async function geocode(query, near, city = DEFAULT_CITY) {
+  near = near || city.center
   const q = query.trim()
   if (!q) throw new Error('Destinazione vuota')
   for (const fn of providers(googleGeocode, ttGeocode, osmGeocode)) {
     try {
-      const r = await fn(q, near)
+      const r = await fn(q, near, city)
       if (r) return r
     } catch (e) {
       console.warn(`Ricerca con ${fn.name} fallita`, e)
