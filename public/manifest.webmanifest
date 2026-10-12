@@ -1,6 +1,6 @@
 {
-  "name": "Attraversa Sicuro",
-  "short_name": "Attraversa",
+  "name": "Sicuro oggi",
+  "short_name": "Sicuro oggi",
   "description": "Ti accompagna a piedi e ti avvisa prima di ogni attraversamento pericoloso.",
   "start_url": "/",
   "display": "standalone",

@@ -1,0 +1,11 @@
+// Deploy su Cloudflare Workers come sito statico: nessun codice lato server, solo la cartella dist/ di Vite.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "attraversa-sicuro",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    // L'app è una pagina sola: qualsiasi percorso sconosciuto restituisce index.html
+    "not_found_handling": "single-page-application"
+  }
+}

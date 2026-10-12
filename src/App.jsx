@@ -7,6 +7,7 @@ import ImpactPanel from './components/ImpactPanel'
 import HistoryPanel from './components/HistoryPanel'
 import PlacesPanel from './components/PlacesPanel'
 import SavePlaceSheet from './components/SavePlaceSheet'
+import Tutorial from './components/Tutorial'
 import { ALERT, CITY, WALK_SPEED_MS } from './config'
 import { DEMO_HAZARDS } from './data/demoHazards'
 import { useDemoWalk } from './hooks/useDemoWalk'
@@ -26,6 +27,15 @@ import { ensureNotificationPermission, speak } from './services/voice'
 
 // Punto di partenza della demo (casa della "signora Maria", a est della SP27)
 const DEMO_START = [45.5505, 10.4245]
+const TUTORIAL_KEY = 'attraversa-sicuro:guida-vista'
+const tutorialSeen = () => {
+  try {
+    return localStorage.getItem(TUTORIAL_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 const QUICK = ['Municipio', 'Farmacia', 'Chiesa', 'Cimitero', 'Scuola']
 
 function plural(n, one, many) {
@@ -47,6 +57,7 @@ export default function App() {
   const [hold, setHold] = useState(false) // demo: la persona si ferma al bordo finché non preme "Ho capito"
   const [showStats, setShowStats] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(() => !tutorialSeen())
   const [showSave, setShowSave] = useState(null) // null | 'welcome' | 'new'
   const [showPlaces, setShowPlaces] = useState(false)
   const [preview, setPreview] = useState(null) // posto da confermare, mostrato sulla mappa
@@ -64,11 +75,20 @@ export default function App() {
   const history = useTripHistory()
   const saved = useSavedPlaces()
 
-  // Primo avvio: la prima cosa è salvare un posto (di solito casa)
+  // Primo avvio: guida in 5 passi, poi si salva il primo posto (di solito casa)
   useEffect(() => {
-    if (!saved.welcomeDone && !saved.places.length) setShowSave('welcome')
+    if (!showTutorial && !saved.welcomeDone && !saved.places.length) setShowSave('welcome')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [showTutorial])
+
+  function closeTutorial() {
+    try {
+      localStorage.setItem(TUTORIAL_KEY, '1')
+    } catch {
+      /* storage non disponibile: la guida ricomparirà al prossimo avvio */
+    }
+    setShowTutorial(false)
+  }
   const demo = useDemoWalk(route?.line, { running: navigating && mode === 'demo' && !hold, speedFactor })
 
   const origin = mode === 'gps' ? gps.pos : DEMO_START
@@ -257,21 +277,28 @@ export default function App() {
             🚸
           </span>
           <div>
-            <h1>Attraversa Sicuro</h1>
+            <h1>Sicuro oggi</h1>
             <small>{CITY.name} · pilota Comune di Gattapelata</small>
           </div>
         </div>
-        <div className="top-actions">
-          <button className="icon-btn" onClick={openHistory} aria-label="Dove sono andato">
-            🕘
+        <nav className="top-actions" aria-label="Menu">
+          <button className="icon-btn" onClick={() => setShowTutorial(true)}>
+            <span aria-hidden>❓</span>
+            Guida
           </button>
-          <button className="icon-btn" onClick={() => setShowStats(true)} aria-label="I miei numeri">
-            📊
+          <button className="icon-btn" onClick={openHistory}>
+            <span aria-hidden>🕘</span>
+            Cronologia
           </button>
-          <a className="icon-btn sos" href="tel:112" aria-label="Chiama il 112">
-            SOS
+          <button className="icon-btn" onClick={() => setShowStats(true)}>
+            <span aria-hidden>📊</span>
+            Numeri
+          </button>
+          <a className="icon-btn sos" href="tel:112" aria-label="SOS, chiama il 112">
+            <span aria-hidden>📞</span>
+            SOS 112
           </a>
-        </div>
+        </nav>
       </header>
 
       <main className="map-wrap">
@@ -477,6 +504,7 @@ export default function App() {
         </details>
       </section>
 
+      {showTutorial && <Tutorial onDone={closeTutorial} />}
       {showSave && (
         <SavePlaceSheet
           welcome={showSave === 'welcome'}

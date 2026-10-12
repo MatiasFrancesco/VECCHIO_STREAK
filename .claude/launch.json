@@ -1,7 +1,39 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "attraversa-sicuro", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 5173 },
-    { "name": "attraversa-sicuro-https", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev:https", "--", "--port", "5174", "--strictPort"], "port": 5174, "url": "https://localhost:5174" }
+    {
+      "name": "attraversa-sicuro",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "attraversa-sicuro-https",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev:https",
+        "--",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174,
+      "url": "https://localhost:5174"
+    },
+    {
+      "name": "attraversa-sicuro-cloudflare",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "wrangler",
+        "dev",
+        "--port",
+        "8787"
+      ],
+      "port": 8787
+    }
   ]
 }

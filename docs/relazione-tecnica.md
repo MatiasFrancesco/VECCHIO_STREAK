@@ -1,4 +1,4 @@
-# Relazione tecnica — "Attraversa Sicuro"
+# Relazione tecnica — "Sicuro oggi"
 
 **Bando di gara del Comune di Gattapelata — App per l'attraversamento stradale sicuro degli anziani**
 Procedura aperta del 06/10/2026 · Offerta presentata il 12/10/2026
@@ -7,7 +7,7 @@ Procedura aperta del 06/10/2026 · Offerta presentata il 12/10/2026
 
 ## 1. Sintesi della proposta
 
-*Attraversa Sicuro* è un'app che accompagna a piedi la persona anziana, la guida con la voce e **la avvisa prima di ogni punto pericoloso** del percorso:
+*Sicuro oggi* è un'app che accompagna a piedi la persona anziana, la guida con la voce e **la avvisa prima di ogni punto pericoloso** del percorso:
 - attraversamenti di strade principali
 - incroci
 - strisce pedonali
