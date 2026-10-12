@@ -11,7 +11,12 @@ const headers = (fieldMask) => ({
   'X-Goog-FieldMask': fieldMask,
 })
 
-// "farmacia" -> luogo più pertinente vicino alla persona
+// Un indirizzo ("Via Morani 11") va cercato per pertinenza; una categoria ("farmacia") per distanza,
+// altrimenti Google può proporre una farmacia a 9 km invece di quella sotto casa.
+const looksLikeAddress = (q) =>
+  /d/.test(q) || /^(via|viale|piazza|piazzale|corso|largo|vicolo|strada|contrada|località|loc.?)s/i.test(q)
+
+// "farmacia" -> la più vicina alla persona; "Via Morani 11" -> quell'indirizzo
 export async function googleGeocode(q, near) {
   const j = await getJson('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
@@ -21,6 +26,7 @@ export async function googleGeocode(q, near) {
       languageCode: 'it',
       regionCode: 'IT',
       pageSize: 1,
+      rankPreference: looksLikeAddress(q) ? 'RELEVANCE' : 'DISTANCE',
       locationBias: { circle: { center: { latitude: near[0], longitude: near[1] }, radius: 5000 } },
     }),
   })

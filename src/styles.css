@@ -778,3 +778,596 @@ body {
     box-shadow: 0 0 0 22px rgba(255, 210, 0, 0);
   }
 }
+
+/* ---------- Guida in 5 passi ---------- */
+.tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: max(16px, env(safe-area-inset-top)) 18px max(16px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+.tut-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+.tut-count {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.tut-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  animation: tut-in 0.3s ease-out;
+}
+@keyframes tut-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+.tut-icon {
+  font-size: 88px;
+  line-height: 1.1;
+}
+.tut-body h2 {
+  font-size: 30px;
+  margin: 6px 0 0;
+  color: var(--blue-dark);
+}
+.tut-body p {
+  font-size: 22px;
+  line-height: 1.4;
+  margin: 6px 0;
+  max-width: 26ch;
+}
+.tut-demo {
+  margin: 10px 0 4px;
+  width: 100%;
+  max-width: 340px;
+  pointer-events: none;
+}
+.tut-listen {
+  margin-top: 10px;
+  min-height: 56px;
+}
+.tut-mock-home,
+.tut-mock-mic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 76px;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  background: #1b7f3b;
+  box-shadow: 0 4px 0 #0f4a22;
+}
+.tut-mock-home span,
+.tut-mock-mic span {
+  font-size: 36px;
+}
+.tut-mock-mic {
+  background: var(--blue);
+  box-shadow: 0 4px 0 var(--blue-dark);
+}
+.tut-mock-alerts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tut-mock-warn,
+.tut-mock-stop {
+  min-height: 72px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 900;
+}
+.tut-mock-warn {
+  background: var(--yellow);
+  border: 4px solid var(--ink);
+}
+.tut-mock-stop {
+  background: var(--red);
+  color: #fff;
+  border: 4px solid #fff;
+  outline: 2px solid var(--red);
+  animation: flash 1s infinite;
+}
+.tut-mock-sos {
+  margin: 0 auto;
+  width: 110px;
+  height: 72px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  color: #fff;
+  font-size: 30px;
+  font-weight: 900;
+}
+.tut-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.tut-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #c5cbd6;
+}
+.tut-dots span.on {
+  background: var(--blue);
+  transform: scale(1.25);
+}
+.tut-nav {
+  margin-top: 8px;
+}
+
+/* ---------- Testata: nome dell'app + menu a griglia ---------- */
+.topbar {
+  flex-wrap: wrap;
+  row-gap: 8px;
+  padding-bottom: 10px;
+}
+.brand {
+  min-width: 0;
+}
+.topbar h1 {
+  white-space: nowrap;
+}
+.top-actions {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.icon-btn {
+  min-width: 0;
+  height: auto;
+  min-height: 64px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.1;
+  background: rgba(255, 255, 255, 0.12);
+}
+.icon-btn span {
+  font-size: 26px;
+  line-height: 1;
+}
+.icon-btn.sos {
+  font-size: 15px;
+  font-weight: 900;
+  padding: 6px 4px;
+}
+@media (max-width: 380px) {
+  .topbar small {
+    display: none;
+  }
+  .icon-btn {
+    font-size: 13px;
+  }
+}
+
+/* =====================================================================
+   RESPONSIVE
+   - telefono verticale (default sopra): mappa sopra, pannello sotto
+   - tablet / desktop (>= 768px): mappa a sinistra, pannello a destra
+   - telefono orizzontale: affiancati, testata compatta
+   - telefoni molto piccoli (<= 360px): caratteri ridotti
+   ===================================================================== */
+
+/* Finestre centrate e limitate in larghezza su ogni schermo */
+.alert {
+  margin: auto;
+  width: min(640px, calc(100% - 24px));
+  height: fit-content;
+  max-height: calc(100dvh - 24px);
+}
+
+/* ---------- Tablet e desktop ---------- */
+@media (min-width: 768px) {
+  .app {
+    max-width: 1440px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(380px, 34vw, 460px);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'header header'
+      'map panel';
+  }
+  .topbar {
+    grid-area: header;
+    flex-wrap: nowrap;
+    padding: 12px 20px;
+  }
+  .topbar h1 {
+    font-size: 28px;
+  }
+  .topbar small {
+    display: block;
+    font-size: 15px;
+  }
+  .top-actions {
+    flex: 0 0 auto;
+    grid-template-columns: repeat(4, 112px);
+  }
+  .icon-btn {
+    font-size: 16px;
+  }
+  .map-wrap {
+    grid-area: map;
+    min-height: 0;
+  }
+  .panel {
+    grid-area: panel;
+    max-height: none;
+    border-top: none;
+    border-left: 1px solid #ddd;
+    padding: 18px;
+  }
+
+  /* Fogli: finestra centrata invece che attaccata al fondo */
+  .sheet-backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+  .sheet {
+    max-width: 560px;
+    border-radius: 22px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+  /* Conferma del posto: in basso a destra, così la mappa resta libera */
+  .sheet-backdrop.see-through {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  .sheet-backdrop.see-through .sheet {
+    max-width: clamp(380px, 34vw, 460px);
+  }
+
+  /* Guida: scheda centrata sopra uno sfondo scuro */
+  .tutorial {
+    margin: auto;
+    width: min(600px, calc(100% - 48px));
+    height: min(780px, calc(100dvh - 48px));
+    border-radius: 24px;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.55), 0 12px 40px rgba(0, 0, 0, 0.4);
+    padding: 22px 28px;
+  }
+
+  .alert {
+    padding: 28px;
+  }
+}
+
+/* Schermi grandi: un po' più di respiro */
+@media (min-width: 1200px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr) 480px;
+  }
+  .quick .btn {
+    flex: 1 1 30%;
+  }
+}
+
+/* ---------- Telefono orizzontale ---------- */
+@media (orientation: landscape) and (max-height: 560px) {
+  .app {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 46%);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      'header header'
+      'map panel';
+  }
+  .topbar {
+    grid-area: header;
+    flex-wrap: nowrap;
+    padding: 6px 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  .logo {
+    font-size: 24px;
+  }
+  .topbar h1 {
+    font-size: 20px;
+  }
+  .topbar small {
+    display: none;
+  }
+  .top-actions {
+    flex: 0 0 auto;
+    grid-template-columns: repeat(4, 76px);
+    gap: 6px;
+  }
+  .icon-btn {
+    min-height: 44px;
+    flex-direction: row;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .icon-btn span {
+    font-size: 18px;
+  }
+  .map-wrap {
+    grid-area: map;
+    min-height: 0;
+  }
+  .panel {
+    grid-area: panel;
+    max-height: none;
+    border-top: none;
+    border-left: 1px solid #ddd;
+    padding: 10px 12px;
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  .mic {
+    min-height: 72px;
+    font-size: 23px;
+  }
+  .place-home {
+    min-height: 76px;
+    font-size: 23px;
+  }
+  .alert {
+    padding: 12px;
+  }
+  .alert-icon {
+    font-size: 44px;
+  }
+  .alert-title {
+    font-size: 34px;
+  }
+  .alert-detail {
+    margin: 4px 0 8px;
+  }
+  .tut-icon {
+    font-size: 52px;
+  }
+  .tut-body h2 {
+    font-size: 24px;
+  }
+  .tut-body p {
+    font-size: 19px;
+    max-width: 40ch;
+  }
+  .tut-demo {
+    margin: 4px 0;
+  }
+  .sheet {
+    max-height: 96dvh;
+  }
+}
+
+/* ---------- Telefoni molto piccoli ---------- */
+@media (max-width: 360px) {
+  :root {
+    font-size: 18px;
+  }
+  .panel {
+    padding: 10px;
+  }
+  .mic {
+    font-size: 24px;
+    min-height: 84px;
+  }
+  .mic span {
+    font-size: 36px;
+  }
+  .place-home {
+    font-size: 24px;
+  }
+  .place-grid .place-btn {
+    font-size: 17px;
+  }
+  .btn.big {
+    font-size: 20px;
+  }
+  .icon-btn {
+    font-size: 12px;
+  }
+  .icon-btn span {
+    font-size: 22px;
+  }
+  .alert-title {
+    font-size: 38px;
+  }
+  .alert-sub {
+    font-size: 22px;
+  }
+  .tut-body h2 {
+    font-size: 26px;
+  }
+  .tut-body p {
+    font-size: 20px;
+  }
+  .preset {
+    font-size: 18px;
+  }
+}
+
+/* Etichette dei pulsanti della testata sempre su una riga */
+.icon-btn {
+  white-space: nowrap;
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .top-actions {
+    grid-template-columns: repeat(4, 104px);
+  }
+}
+@media (max-width: 360px) {
+  .icon-btn {
+    font-size: 11px;
+    min-height: 58px;
+  }
+  .top-actions {
+    gap: 6px;
+  }
+}
+
+/* ---------- Meteo ---------- */
+/* Testata con 5 pulsanti */
+.top-actions {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (min-width: 768px) {
+  .top-actions {
+    grid-template-columns: repeat(5, 104px);
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .top-actions {
+    grid-template-columns: repeat(5, 96px);
+  }
+}
+@media (max-width: 420px) {
+  .icon-btn {
+    font-size: 12px;
+    padding: 6px 2px;
+  }
+  .icon-btn span {
+    font-size: 23px;
+  }
+}
+.wx-mini {
+  font-size: 13px;
+  font-weight: 800;
+  margin-left: 1px;
+  vertical-align: middle;
+}
+
+.rain-banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  min-height: 64px;
+  border: 3px solid #0b4f8a;
+  border-radius: 14px;
+  background: #dbeeff;
+  color: #062c4d;
+  text-align: left;
+  cursor: pointer;
+  font-size: 20px;
+}
+.rain-banner > span:first-child {
+  font-size: 34px;
+}
+.rain-banner small {
+  display: block;
+  font-size: 16px;
+}
+
+.wx-now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--soft);
+}
+.wx-now.wx-rain {
+  background: #dbeeff;
+  border: 3px solid #0b4f8a;
+}
+.wx-now > div {
+  display: flex;
+  flex-direction: column;
+}
+.wx-temp {
+  font-size: 44px;
+  line-height: 1;
+}
+.wx-desc {
+  font-size: 21px;
+  font-weight: 700;
+}
+.wx-now small {
+  font-size: 15px;
+  color: var(--muted);
+}
+.wx-tips {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 6px;
+}
+.wx-tips li {
+  font-size: 18px;
+  padding: 8px 10px;
+  background: #fff8d6;
+  border-radius: 10px;
+}
+.wx-h3 {
+  margin: 14px 0 8px;
+  font-size: 19px;
+  color: var(--muted);
+}
+.wx-hours {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.wx-hours li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 2px;
+  border-radius: 12px;
+  background: var(--soft);
+  font-size: 15px;
+}
+.wx-hours li.wet {
+  background: #dbeeff;
+  outline: 2px solid #0b4f8a;
+}
+.wx-hours strong {
+  font-size: 18px;
+}
+.wx-hour {
+  font-weight: 700;
+}
+.wx-prob {
+  font-size: 13px;
+}
+@media (max-width: 380px) {
+  .wx-hours {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

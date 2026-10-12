@@ -1,0 +1,21 @@
+# Header HTTP applicati da Cloudflare ai file statici.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(self), microphone=(self), camera=()
+
+# Il service worker va sempre ricontrollato, altrimenti gli aggiornamenti arrivano in ritardo
+/sw.js
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: no-cache
+
+# I file in /assets hanno l'hash nel nome: si possono tenere in cache per sempre
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
