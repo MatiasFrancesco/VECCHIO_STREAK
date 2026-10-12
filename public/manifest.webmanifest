@@ -1,0 +1,13 @@
+{
+  "name": "Attraversa Sicuro",
+  "short_name": "Attraversa",
+  "description": "Ti accompagna a piedi e ti avvisa prima di ogni attraversamento pericoloso.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b3d91",
+  "lang": "it",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
