@@ -17,7 +17,9 @@ npm run dev            # http://localhost:5173
 Nel progetto Google Cloud della chiave vanno abilitate tre API:
 - **Maps JavaScript API**: mappa e strato del traffico;
 - **Places API (New)**: ricerca della destinazione;
-- **Routes API**: percorso a piedi.
+- **Routes API**: percorso a piedi;
+- **Weather API**: meteo e avviso pioggia (riserva gratuita: Open-Meteo);
+- **Geocoding API**: indirizzo dalla posizione («Sono qui adesso»).
 
 Conviene limitare la chiave per *referrer HTTP* (`localhost:5173`, il dominio di produzione) e solo a queste tre API: in una PWA la chiave è visibile nel browser.
 
@@ -79,7 +81,15 @@ Prova locale con il server di Cloudflare: `npm run cf:dev` → http://localhost:
 3. Premi **Partiamo**. In *Impostazioni demo* puoi regolare la velocità del cammino simulato.
 4. A 40 m da ogni punto compare l'avviso giallo. Prima degli attraversamenti compare il rosso **FERMATI**, e il cammino resta fermo finché non premi «Ho capito».
 5. All'arrivo il posto finisce in **🕘 Dove sono andato**. Nella schermata iniziale compare tra «I tuoi posti» (un tocco per tornarci). Si può chiedere anche a voce: «dove sono andato?».
-6. Apri **📊** per vedere i numeri misurati (attraversamenti guidati, avvisi, km).
+6. Il pulsante **Meteo** (con la temperatura) mostra:
+   - tempo attuale;
+   - consigli pratici;
+   - previsione delle prossime 6 ore.
+
+   Se piove, o se è prevista pioggia, compare un avviso azzurro. L'avviso entra anche nel riepilogo vocale del percorso e nel FERMATI. Se comincia a piovere durante il cammino, l'app lo dice subito.
+
+   Per mostrarlo anche con il bel tempo: *Impostazioni demo → Simula pioggia*.
+7. Apri **📊** per vedere i numeri misurati (attraversamenti guidati, avvisi, km).
 
 Per l'uso reale si passa a *GPS reale* nelle impostazioni.
 

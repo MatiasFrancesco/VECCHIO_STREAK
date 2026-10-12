@@ -1232,3 +1232,142 @@ body {
     gap: 6px;
   }
 }
+
+/* ---------- Meteo ---------- */
+/* Testata con 5 pulsanti */
+.top-actions {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (min-width: 768px) {
+  .top-actions {
+    grid-template-columns: repeat(5, 104px);
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .top-actions {
+    grid-template-columns: repeat(5, 96px);
+  }
+}
+@media (max-width: 420px) {
+  .icon-btn {
+    font-size: 12px;
+    padding: 6px 2px;
+  }
+  .icon-btn span {
+    font-size: 23px;
+  }
+}
+.wx-mini {
+  font-size: 13px;
+  font-weight: 800;
+  margin-left: 1px;
+  vertical-align: middle;
+}
+
+.rain-banner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  min-height: 64px;
+  border: 3px solid #0b4f8a;
+  border-radius: 14px;
+  background: #dbeeff;
+  color: #062c4d;
+  text-align: left;
+  cursor: pointer;
+  font-size: 20px;
+}
+.rain-banner > span:first-child {
+  font-size: 34px;
+}
+.rain-banner small {
+  display: block;
+  font-size: 16px;
+}
+
+.wx-now {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--soft);
+}
+.wx-now.wx-rain {
+  background: #dbeeff;
+  border: 3px solid #0b4f8a;
+}
+.wx-now > div {
+  display: flex;
+  flex-direction: column;
+}
+.wx-temp {
+  font-size: 44px;
+  line-height: 1;
+}
+.wx-desc {
+  font-size: 21px;
+  font-weight: 700;
+}
+.wx-now small {
+  font-size: 15px;
+  color: var(--muted);
+}
+.wx-tips {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 6px;
+}
+.wx-tips li {
+  font-size: 18px;
+  padding: 8px 10px;
+  background: #fff8d6;
+  border-radius: 10px;
+}
+.wx-h3 {
+  margin: 14px 0 8px;
+  font-size: 19px;
+  color: var(--muted);
+}
+.wx-hours {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.wx-hours li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 2px;
+  border-radius: 12px;
+  background: var(--soft);
+  font-size: 15px;
+}
+.wx-hours li.wet {
+  background: #dbeeff;
+  outline: 2px solid #0b4f8a;
+}
+.wx-hours strong {
+  font-size: 18px;
+}
+.wx-hour {
+  font-weight: 700;
+}
+.wx-prob {
+  font-size: 13px;
+}
+@media (max-width: 380px) {
+  .wx-hours {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

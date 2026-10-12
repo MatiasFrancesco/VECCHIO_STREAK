@@ -36,6 +36,16 @@ L'utente non deve saper usare una mappa né scrivere. Preme un solo grande pulsa
 
 Sempre visibili: il pulsante **SOS** (chiamata al 112), la sezione **«I miei numeri»** e la cronologia **«Dove sono andato»**.
 
+**Meteo e pioggia.** Con la pioggia aumentano tre rischi:
+- i marciapiedi diventano scivolosi;
+- le auto frenano più tardi;
+- la visibilità agli attraversamenti si riduce.
+
+Per questo l'app legge il meteo (Google Weather API, riserva Open-Meteo) e si aggiorna ogni 10 minuti.
+- Se piove o è prevista pioggia, avvisa nella schermata principale e nel riepilogo vocale del percorso. Al «FERMATI» aggiunge: «con la pioggia le auto frenano più tardi: aspetta che siano ferme».
+- Se comincia a piovere durante il cammino, avvisa subito a voce e con una notifica.
+- Il pulsante «Meteo» mostra il tempo attuale, la previsione oraria e consigli pratici: ombrello, caldo, ghiaccio, vento.
+
 **I miei posti.** Al primo avvio l'app chiede di salvare il primo posto, di solito casa.
 - Si sceglie tra tipi predefiniti (casa, supermercato, dottore, farmacia, famiglia, chiesa) o si dà un nome libero.
 - L'indirizzo si può indicare in tre modi:
@@ -138,6 +148,7 @@ Nel 2025 le vittime anziane negli attraversamenti del centro storico sono state 
 Progettazione conforme al GDPR (artt. 5 e 25: minimizzazione e *privacy by design*):
 - **Nessun account e nessun database.** L'app non raccoglie nome, telefono o email.
 - **La posizione resta sul telefono.** Serve solo a calcolare la distanza dai punti critici. Ai servizi di mappa (Google, TomTom) vengono inviati soltanto partenza e destinazione del singolo percorso, senza alcun identificativo dell'utente: nessun account Google è richiesto.
+- Per il meteo si invia una posizione arrotondata a circa 1 km, sufficiente per la previsione e non riconducibile all'abitazione.
 - Google è un fornitore extra-UE. Il trattamento avviene secondo i termini di Google Maps Platform, con clausole contrattuali standard ed EU-US Data Privacy Framework. Per la produzione si valuterà con il DPO del Comune se l'invio di partenza e destinazione richiede una DPIA. In ogni caso è disponibile la riserva interamente europea/open (OpenStreetMap).
 - **Le statistiche, i posti salvati (compreso l'indirizzo di casa) e la cronologia sono salvati solo sul dispositivo** (archivio locale del browser). Si possono cancellare in qualsiasi momento, anche un posto alla volta. La cronologia non viene mai inviata al Comune né a terzi.
 - Un'eventuale condivisione con il Comune avverrebbe solo su consenso esplicito e solo come **totali anonimi aggregati**.

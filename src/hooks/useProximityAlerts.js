@@ -10,7 +10,7 @@ const CROSSING_TYPES = new Set([...STOP_TYPES, 'incrocio'])
 //  - a 40 m: avviso giallo + voce + notifica
 //  - a 15 m (solo attraversamenti): "FERMATI" rosso + vibrazione forte
 //  - superato il punto: conteggiato come attraversamento sicuro
-export function useProximityAlerts({ route, points, pos, active, onStats, onOffRoute, onArrive }) {
+export function useProximityAlerts({ route, points, pos, active, onStats, onOffRoute, onArrive, rainy = false }) {
   const [alert, setAlert] = useState(null)
   const [progress, setProgress] = useState({ along: 0, next: null, distToNext: null, arrived: false })
   const state = useRef({})
@@ -64,9 +64,10 @@ export function useProximityAlerts({ route, points, pos, active, onStats, onOffR
         onStats({ stops: 1 })
         setAlert({ point: p, level: 'stop', dist: Math.round(d) })
         speak(
-          p.semaforo || p.type === 'semaforo'
+          (p.semaforo || p.type === 'semaforo'
             ? 'Fermati. Aspetta il verde. Poi guarda a sinistra e a destra.'
-            : 'Fermati. Guarda a sinistra, poi a destra, poi ancora a sinistra. Attraversa solo se non arrivano auto.'
+            : 'Fermati. Guarda a sinistra, poi a destra, poi ancora a sinistra. Attraversa solo se non arrivano auto.') +
+            (rainy ? ' Con la pioggia le auto frenano più tardi: aspetta che siano ferme.' : '')
         )
         vibrate([500, 150, 500, 150, 500])
         notify(`🛑 FERMATI — ${p.title}`, 'Guarda a sinistra e a destra prima di attraversare.', { urgent: true })
@@ -83,7 +84,7 @@ export function useProximityAlerts({ route, points, pos, active, onStats, onOffR
       setAlert(null)
     }
     setProgress({ along, next: next?.point || null, distToNext: next ? Math.round(next.dist) : null, arrived })
-  }, [pos, active, route, points, proj, length, onStats, onOffRoute, onArrive])
+  }, [pos, active, route, points, proj, length, onStats, onOffRoute, onArrive, rainy])
 
   return { alert, dismiss: () => setAlert(null), progress, length }
 }

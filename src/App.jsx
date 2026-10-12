@@ -8,6 +8,7 @@ import HistoryPanel from './components/HistoryPanel'
 import PlacesPanel from './components/PlacesPanel'
 import SavePlaceSheet from './components/SavePlaceSheet'
 import Tutorial from './components/Tutorial'
+import WeatherPanel from './components/WeatherPanel'
 import { ALERT, CITY, WALK_SPEED_MS } from './config'
 import { DEMO_HAZARDS } from './data/demoHazards'
 import { useDemoWalk } from './hooks/useDemoWalk'
@@ -16,6 +17,7 @@ import { useImpactStats } from './hooks/useImpactStats'
 import { useProximityAlerts } from './hooks/useProximityAlerts'
 import { useSavedPlaces } from './hooks/useSavedPlaces'
 import { useTripHistory } from './hooks/useTripHistory'
+import { useWeather } from './hooks/useWeather'
 import { cleanDestination, useSpeechInput } from './hooks/useSpeechInput'
 import { computeCriticalPoints } from './services/criticalPoints'
 import { bboxOf, haversine } from './services/geo'
@@ -23,7 +25,8 @@ import { streetFeatures } from './services/overpass'
 import { geocode, walkingRoute } from './services/directions'
 import { hasGoogle } from './services/google'
 import { hasTomTom, trafficIncidents } from './services/tomtom'
-import { ensureNotificationPermission, speak } from './services/voice'
+import { ensureNotificationPermission, notify, speak, vibrate } from './services/voice'
+import { rainWarning } from './services/weather'
 
 // Punto di partenza della demo (casa della "signora Maria", a est della SP27)
 const DEMO_START = [45.5505, 10.4245]
@@ -60,6 +63,8 @@ export default function App() {
   const [showTutorial, setShowTutorial] = useState(() => !tutorialSeen())
   const [showSave, setShowSave] = useState(null) // null | 'welcome' | 'new'
   const [showPlaces, setShowPlaces] = useState(false)
+  const [showWeather, setShowWeather] = useState(false)
+  const [simRain, setSimRain] = useState(false) // demo: pioggia simulata
   const [preview, setPreview] = useState(null) // posto da confermare, mostrato sulla mappa
   const [googleFailed, setGoogleFailed] = useState(false)
   const useGoogleMap = hasGoogle && !googleFailed
@@ -93,6 +98,10 @@ export default function App() {
 
   const origin = mode === 'gps' ? gps.pos : DEMO_START
   const me = mode === 'gps' ? gps.pos : route ? demo.pos : DEMO_START
+
+  const { weather, error: weatherError } = useWeather(origin || CITY.center, { simulate: simRain })
+  const rainy = Boolean(weather?.now.wet)
+  const rainAhead = rainy || Boolean(weather?.rainSoon)
 
   // Traffico: incidenti, cantieri e chiusure attuali (TomTom), con fallback dimostrativo
   useEffect(() => {
@@ -149,6 +158,7 @@ export default function App() {
           `Ti porto ${dest.to || `a ${dest.name}`}. Sono circa ${Math.round(r.meters / 10) * 10} metri, ${plural(minutes, 'minuto', 'minuti')} a piedi. ` +
           (crossings ? `${crossings === 1 ? "C'è un punto pericoloso" : `Ci sono ${crossings} punti pericolosi`} lungo la strada: ti avviserò prima di ognuno. ` : 'Il percorso non attraversa strade trafficate. ') +
           (dangers.length ? `Attenzione: sul percorso c'è ${dangers.map((d) => d.title.toLowerCase()).join(' e ')}. ` : '') +
+          (rainWarning(weather) ? rainWarning(weather) + ' ' : '') +
           (silent ? '' : 'Quando sei pronto, premi Partiamo.')
         setMessage(summary)
         speak(summary)
@@ -161,7 +171,7 @@ export default function App() {
         setLoading(false)
       }
     },
-    [origin, hazards, saved.findPlace]
+    [origin, hazards, saved.findPlace, weather]
   )
 
   const openHistory = useCallback(() => {
@@ -213,7 +223,20 @@ export default function App() {
     onStats: addStats,
     onOffRoute,
     onArrive,
+    rainy,
   })
+
+  // Se comincia a piovere mentre si cammina, avviso subito
+  const wasRainy = useRef(rainy)
+  useEffect(() => {
+    if (navigating && rainy && !wasRainy.current) {
+      const msg = 'Attenzione, ha cominciato a piovere. Il marciapiede può essere scivoloso e le auto frenano più tardi. Cammina con calma.'
+      speak(msg)
+      vibrate([250, 100, 250])
+      notify('🌧️ Ha cominciato a piovere', 'Marciapiedi scivolosi: cammina e attraversa con calma.')
+    }
+    wasRainy.current = rainy
+  }, [rainy, navigating])
 
   useEffect(() => setHold(alert?.level === 'stop'), [alert])
 
@@ -286,6 +309,13 @@ export default function App() {
             <span aria-hidden>❓</span>
             Guida
           </button>
+          <button className="icon-btn" onClick={() => setShowWeather(true)}>
+            <span aria-hidden>
+              {weather?.now.emoji || '🌤️'}
+              {weather && <b className="wx-mini">{weather.now.temp}°</b>}
+            </span>
+            Meteo
+          </button>
           <button className="icon-btn" onClick={openHistory}>
             <span aria-hidden>🕘</span>
             Cronologia
@@ -314,6 +344,15 @@ export default function App() {
       </main>
 
       <section className="panel">
+        {rainAhead && (
+          <button className="rain-banner" onClick={() => setShowWeather(true)}>
+            <span aria-hidden>🌧️</span>
+            <span>
+              <strong>{rainy ? 'Sta piovendo' : `Pioggia verso le ${weather.rainSoon.at}`}</strong>
+              <small>{rainy ? 'Marciapiedi scivolosi: cammina e attraversa con calma.' : 'Porta l’ombrello.'}</small>
+            </span>
+          </button>
+        )}
         {!route && (
           <>
             {saved.places.length === 0 ? (
@@ -489,6 +528,10 @@ export default function App() {
             />{' '}
             GPS reale {mode === 'gps' && gps.accuracy ? `(±${Math.round(gps.accuracy)} m)` : ''}
           </label>
+          <label>
+            <input type="checkbox" checked={simRain} onChange={(e) => setSimRain(e.target.checked)} /> Simula pioggia
+            (presentazione)
+          </label>
           {mode === 'demo' && (
             <label>
               Velocità simulazione: ×{speedFactor}
@@ -505,6 +548,7 @@ export default function App() {
       </section>
 
       {showTutorial && <Tutorial onDone={closeTutorial} />}
+      {showWeather && <WeatherPanel weather={weather} error={weatherError} onClose={() => setShowWeather(false)} />}
       {showSave && (
         <SavePlaceSheet
           welcome={showSave === 'welcome'}
