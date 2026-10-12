@@ -19,7 +19,11 @@ L'utente non deve saper usare una mappa né scrivere. Preme un solo grande pulsa
 - individua i punti critici;
 - durante il cammino, prima di ognuno, parla, vibra e mostra un avviso a tutto schermo. A 15 metri da un attraversamento dice **«FERMATI. Guarda a sinistra e a destra»**.
 
-È una **Progressive Web App**: si installa in pochi secondi da un link o da un QR code, senza passare dagli app store. Funziona sui telefoni Android e iOS già posseduti dai cittadini. **Non richiede alcun intervento sui vicoli del centro storico**, che restano «così come attualmente sono» (Art. 2).
+È una **Progressive Web App**: si installa in pochi secondi da un link o da un QR code, senza passare dagli app store. Funziona sui telefoni Android e iOS già posseduti dai cittadini.
+- Su iPhone si apre il link in Safari e si sceglie **Condividi → Aggiungi alla schermata Home**.
+- Su Android, Chrome propone direttamente l'installazione.
+
+In entrambi i casi sulla schermata Home compare l'icona **«Sicuro oggi»**, e l'app si apre a schermo intero come un'app tradizionale. **Non richiede alcun intervento sui vicoli del centro storico**, che restano «così come attualmente sono» (Art. 2).
 
 ## 2. Come funziona
 
@@ -35,6 +39,8 @@ L'utente non deve saper usare una mappa né scrivere. Preme un solo grande pulsa
 | 8. Arrivo | «Sei arrivato a destinazione, in sicurezza.» | Il viaggio viene registrato |
 
 Sempre visibili: il pulsante **SOS** (chiamata al 112), la sezione **«I miei numeri»** e la cronologia **«Dove sono andato»**.
+
+**Paese di riferimento.** L'app non è legata a un comune: al primo avvio la persona indica il proprio paese, dalla posizione del telefono o per nome, e lo può cambiare in ogni momento. Ricerca dei posti, cantieri, meteo e mappa si adattano al paese scelto. Il sistema si estende così ad altri comuni senza modifiche.
 
 **Meteo e pioggia.** Con la pioggia aumentano tre rischi:
 - i marciapiedi diventano scivolosi;
@@ -123,7 +129,8 @@ Nel 2025 le vittime anziane negli attraversamenti del centro storico sono state 
 ## 7. Fattibilità e tempi (criterio: 10 punti)
 
 - **Architettura senza server e senza database**: React con Vite, distribuita come PWA statica.
-  - Mappa, ricerca e percorso: Google Maps Platform (Maps JavaScript API con strato traffico, Places API, Routes API).
+  - Hosting: **Cloudflare Workers** (solo file statici), con HTTPS incluso e rete di distribuzione globale. HTTPS è indispensabile perché il browser conceda GPS e microfono.
+  - Mappa, ricerca e percorso: Google Maps Platform (Maps JavaScript API con strato traffico, Places API, Routes API, Geocoding API).
   - Cantieri e incidenti: TomTom Traffic Incidents.
   - Strade principali, strisce e semafori: OpenStreetMap (Overpass).
   - **Riserva automatica**: se Google non risponde (chiave, rete, quote), l'app passa a OpenStreetMap (Leaflet, Nominatim, OSRM) senza interrompere la guida.
@@ -131,11 +138,16 @@ Nel 2025 le vittime anziane negli attraversamenti del centro storico sono state 
 
   | Tempo | Attività |
   |---|---|
-  | 0–20 min | Pubblicazione dei file statici su un hosting HTTPS |
+  | 0–20 min | Collegamento del repository a Cloudflare e prima pubblicazione |
   | 20–40 min | Configurazione delle chiavi Google/TomTom (limitate al dominio) e dello snapshot OSM del centro storico |
   | 40–70 min | Prova su strada di un percorso campione |
   | 70–90 min | Distribuzione del QR code a farmacie, parrocchie e centri anziani |
 
+- **Pubblicazione e aggiornamenti automatici**:
+  - Il codice è in un repository Git collegato a Cloudflare: ogni modifica approvata viene ricompilata e pubblicata in automatico.
+  - Le chiavi dei servizi di mappa sono variabili di build, non sono salvate nel codice e sono limitate al dominio dell'app.
+  - Le versioni precedenti restano disponibili: in caso di problemi si torna indietro con un clic.
+  - L'app ricontrolla sempre la pagina principale e il service worker. Così una correzione arriva a tutti i telefoni alla successiva apertura, senza reinstallare nulla.
 - **Gestione e manutenzione per 48 mesi**:
   - aggiornamento trimestrale dello snapshot cartografico;
   - mappatura con il Comune delle strisce e dei semafori mancanti in OSM;
@@ -150,6 +162,8 @@ Progettazione conforme al GDPR (artt. 5 e 25: minimizzazione e *privacy by desig
 - **La posizione resta sul telefono.** Serve solo a calcolare la distanza dai punti critici. Ai servizi di mappa (Google, TomTom) vengono inviati soltanto partenza e destinazione del singolo percorso, senza alcun identificativo dell'utente: nessun account Google è richiesto.
 - Per il meteo si invia una posizione arrotondata a circa 1 km, sufficiente per la previsione e non riconducibile all'abitazione.
 - Google è un fornitore extra-UE. Il trattamento avviene secondo i termini di Google Maps Platform, con clausole contrattuali standard ed EU-US Data Privacy Framework. Per la produzione si valuterà con il DPO del Comune se l'invio di partenza e destinazione richiede una DPIA. In ogni caso è disponibile la riserva interamente europea/open (OpenStreetMap).
+- **Cloudflare ospita soltanto i file dell'app.** Non riceve posizioni, percorsi né dati inseriti dall'utente: vede solo le normali richieste di scaricamento della pagina, come qualsiasi sito web. Il trattamento è regolato dal Data Processing Addendum di Cloudflare, con clausole contrattuali standard ed EU-US Data Privacy Framework.
+- Il server indica al browser che GPS e microfono possono essere usati solo dall'app stessa (intestazione *Permissions-Policy*), mai da contenuti di terzi.
 - **Le statistiche, i posti salvati (compreso l'indirizzo di casa) e la cronologia sono salvati solo sul dispositivo** (archivio locale del browser). Si possono cancellare in qualsiasi momento, anche un posto alla volta. La cronologia non viene mai inviata al Comune né a terzi.
 - Un'eventuale condivisione con il Comune avverrebbe solo su consenso esplicito e solo come **totali anonimi aggregati**.
 - Nessuna profilazione, nessuna pubblicità, nessun tracciamento di terze parti.
@@ -157,7 +171,7 @@ Progettazione conforme al GDPR (artt. 5 e 25: minimizzazione e *privacy by desig
 ## 9. Costi infrastrutturali
 
 L'app non richiede server applicativi, database né apparati in strada. I costi infrastrutturali si riducono a:
-- hosting di file statici, con costo trascurabile;
+- hosting su Cloudflare Workers: le richieste ai file statici sono gratuite e illimitate, anche nel piano gratuito;
 - consumo delle API Google Maps Platform: rientra nelle quote mensili gratuite durante il pilota, poi è a consumo in base ai percorsi calcolati;
 - TomTom Traffic Incidents: piano gratuito.
 
@@ -166,6 +180,10 @@ Tutta la quota del contratto può quindi andare a diffusione, formazione dei cit
 ## 10. Limiti del prototipo e passi successivi
 
 - Il riconoscimento vocale richiede Chrome (Android) o Safari recente (iOS). In alternativa c'è il campo di testo.
+- Su iPhone il browser pone alcuni limiti:
+  - la vibrazione non è disponibile: restano voce, avviso a tutto schermo e notifica;
+  - le notifiche funzionano solo se l'app è stata aggiunta alla schermata Home (iOS 16.4 o successivo);
+  - il comando vocale richiede che Siri sia attivo nelle impostazioni del telefono.
 - La qualità dei punti critici dipende dalla mappatura OSM di strisce e semafori. Nei primi mesi è previsto un censimento con la Polizia Locale.
 - In un piccolo comune TomTom può non avere segnalazioni attive. La demo mostra allora alcune segnalazioni dimostrative, indicate come «dati demo».
 - Sviluppi possibili:

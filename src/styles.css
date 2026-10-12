@@ -1371,3 +1371,58 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ---------- Paese di riferimento ---------- */
+.town-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 3px 10px;
+  min-height: 32px;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.town-btn span {
+  font-size: 12px;
+}
+.brand > div {
+  min-width: 0;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+.town-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 8px;
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .town-btn {
+    min-height: 26px;
+    font-size: 13px;
+    margin-top: 0;
+  }
+}
+.demo-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a00;
+  text-transform: uppercase;
+}

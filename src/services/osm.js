@@ -1,12 +1,11 @@
 // Servizi gratuiti OpenStreetMap: ultima riserva se Google e TomTom non sono disponibili.
-import { CITY } from '../config'
 import { getJson } from './http'
 
-export async function osmGeocode(q) {
-  const [s, w, n, e] = CITY.bbox
+export async function osmGeocode(q, near, city) {
+  const [s, w, n, e] = city.bbox
   const base = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=it`
   // Prima cerco nel comune, poi nell'area circostante
-  let j = await getJson(`${base}&q=${encodeURIComponent(`${q}, ${CITY.name}`)}`)
+  let j = await getJson(`${base}&q=${encodeURIComponent(`${q}, ${city.name}`)}`)
   if (!j.length) j = await getJson(`${base}&viewbox=${w},${n},${e},${s}&bounded=1&q=${encodeURIComponent(q)}`)
   if (!j.length) return null
   return { name: j[0].name || q, address: j[0].display_name, pos: [+j[0].lat, +j[0].lon] }

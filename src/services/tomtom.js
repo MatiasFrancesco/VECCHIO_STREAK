@@ -1,6 +1,6 @@
 // TomTom: ricerca e percorso come riserva di Google, e soprattutto incidenti/cantieri/chiusure
 // in tempo reale (Google non li espone come dati).
-import { CITY, TOMTOM_KEY } from '../config'
+import { TOMTOM_KEY } from '../config'
 import { getJson } from './http'
 
 const TT = 'https://api.tomtom.com'
@@ -56,7 +56,7 @@ const ICON = {
   14: ['guasto', 'Veicolo in panne'],
 }
 
-export async function trafficIncidents(bbox = CITY.bbox) {
+export async function trafficIncidents(bbox) {
   if (!hasTomTom) return []
   const [s, w, n, e] = bbox
   const fields =

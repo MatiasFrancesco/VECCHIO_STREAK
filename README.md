@@ -57,6 +57,12 @@ A ogni push su `main` l'app viene ricompilata e ripubblicata.
 
 Prova locale con il server di Cloudflare: `npm run cf:dev` → http://localhost:8787
 
+## Paese di riferimento e produzione
+
+- **Paese:** al primo avvio, dopo la guida, l'app chiede il paese di riferimento: dalla posizione del telefono 📍 oppure cercandolo per nome. Si cambia toccando il nome del paese nella testata, o da *Impostazioni → Paese*. Ricerca dei posti, cantieri, meteo e centro della mappa seguono il paese scelto.
+- **In produzione** (`npm run build` / deploy) l'app usa **sempre la posizione GPS reale**. Gli strumenti di demo non sono inclusi nel bundle: cammino simulato, velocità, «Simula pioggia», cantieri dimostrativi di Prevalle.
+- **In locale** (`npm run dev`) restano disponibili in *Impostazioni*, sotto «Strumenti di demo».
+
 ## Demo consigliata
 
 0. Al primo avvio parte una **guida in 5 passi**, letta ad alta voce:

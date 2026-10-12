@@ -7,10 +7,12 @@ import ImpactPanel from './components/ImpactPanel'
 import HistoryPanel from './components/HistoryPanel'
 import PlacesPanel from './components/PlacesPanel'
 import SavePlaceSheet from './components/SavePlaceSheet'
+import TownPicker from './components/TownPicker'
 import Tutorial from './components/Tutorial'
 import WeatherPanel from './components/WeatherPanel'
-import { ALERT, CITY, WALK_SPEED_MS } from './config'
+import { ALERT, DEFAULT_MODE, DEMO_ENABLED, WALK_SPEED_MS } from './config'
 import { DEMO_HAZARDS } from './data/demoHazards'
+import { useCity } from './hooks/useCity'
 import { useDemoWalk } from './hooks/useDemoWalk'
 import { useGeolocation } from './hooks/useGeolocation'
 import { useImpactStats } from './hooks/useImpactStats'
@@ -26,18 +28,29 @@ import { geocode, walkingRoute } from './services/directions'
 import { hasGoogle } from './services/google'
 import { hasTomTom, trafficIncidents } from './services/tomtom'
 import { ensureNotificationPermission, notify, speak, vibrate } from './services/voice'
+import { inBbox } from './services/town'
 import { rainWarning } from './services/weather'
 
 // Punto di partenza della demo (casa della "signora Maria", a est della SP27)
 const DEMO_START = [45.5505, 10.4245]
 const TUTORIAL_KEY = 'attraversa-sicuro:guida-vista'
-const tutorialSeen = () => {
+const TOWN_ASKED_KEY = 'attraversa-sicuro:paese-chiesto'
+const MODE_KEY = 'attraversa-sicuro:modo'
+const readKey = (k) => {
   try {
-    return localStorage.getItem(TUTORIAL_KEY) === '1'
+    return localStorage.getItem(k)
   } catch {
-    return false
+    return null
   }
 }
+const writeKey = (k, v) => {
+  try {
+    localStorage.setItem(k, v)
+  } catch {
+    /* storage non disponibile */
+  }
+}
+const tutorialSeen = () => readKey(TUTORIAL_KEY) === '1'
 
 const QUICK = ['Municipio', 'Farmacia', 'Chiesa', 'Cimitero', 'Scuola']
 
@@ -46,7 +59,8 @@ function plural(n, one, many) {
 }
 
 export default function App() {
-  const [mode, setMode] = useState('demo') // 'demo' = cammino simulato, 'gps' = posizione reale
+  // 'gps' = posizione reale, 'demo' = cammino simulato (presentazione al chiuso)
+  const [mode, setMode] = useState(() => (DEMO_ENABLED ? readKey(MODE_KEY) || DEFAULT_MODE : 'gps'))
   const [hazards, setHazards] = useState([])
   const [hazardSource, setHazardSource] = useState('')
   const [destination, setDestination] = useState(null)
@@ -64,6 +78,7 @@ export default function App() {
   const [showSave, setShowSave] = useState(null) // null | 'welcome' | 'new'
   const [showPlaces, setShowPlaces] = useState(false)
   const [showWeather, setShowWeather] = useState(false)
+  const [showTown, setShowTown] = useState(null) // null | 'welcome' | 'change'
   const [simRain, setSimRain] = useState(false) // demo: pioggia simulata
   const [preview, setPreview] = useState(null) // posto da confermare, mostrato sulla mappa
   const [googleFailed, setGoogleFailed] = useState(false)
@@ -79,12 +94,27 @@ export default function App() {
   const { stats, add: addStats, reset: resetStats } = useImpactStats()
   const history = useTripHistory()
   const saved = useSavedPlaces()
+  const { city, chosen: cityChosen, setCity } = useCity()
+  const [townAsked, setTownAsked] = useState(() => readKey(TOWN_ASKED_KEY) === '1')
 
-  // Primo avvio: guida in 5 passi, poi si salva il primo posto (di solito casa)
+  // Primo avvio: guida in 5 passi -> paese di riferimento -> primo posto salvato (di solito casa)
   useEffect(() => {
-    if (!showTutorial && !saved.welcomeDone && !saved.places.length) setShowSave('welcome')
+    if (showTutorial || showTown) return
+    if (!cityChosen && !townAsked) setShowTown('welcome')
+    else if (!saved.welcomeDone && !saved.places.length) setShowSave('welcome')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTutorial])
+  }, [showTutorial, showTown, townAsked])
+
+  function closeTown() {
+    writeKey(TOWN_ASKED_KEY, '1')
+    setTownAsked(true)
+    setShowTown(null)
+  }
+
+  function changeMode(m) {
+    writeKey(MODE_KEY, m)
+    setMode(m)
+  }
 
   function closeTutorial() {
     try {
@@ -96,30 +126,32 @@ export default function App() {
   }
   const demo = useDemoWalk(route?.line, { running: navigating && mode === 'demo' && !hold, speedFactor })
 
-  const origin = mode === 'gps' ? gps.pos : DEMO_START
-  const me = mode === 'gps' ? gps.pos : route ? demo.pos : DEMO_START
+  // Nel comune pilota la demo parte da casa della "signora Maria"; altrove dal centro del paese
+  const demoStart = inBbox(DEMO_START, city.bbox) ? DEMO_START : city.center
+  const origin = mode === 'gps' ? gps.pos : demoStart
+  const me = mode === 'gps' ? gps.pos : route ? demo.pos : demoStart
 
-  const { weather, error: weatherError } = useWeather(origin || CITY.center, { simulate: simRain })
+  const { weather, error: weatherError } = useWeather(origin || city.center, { simulate: simRain })
   const rainy = Boolean(weather?.now.wet)
   const rainAhead = rainy || Boolean(weather?.rainSoon)
 
   // Traffico: incidenti, cantieri e chiusure attuali (TomTom), con fallback dimostrativo
+  // Le segnalazioni demo esistono solo nel comune pilota
   useEffect(() => {
-    trafficIncidents(CITY.bbox)
+    const demoHere = DEMO_ENABLED ? DEMO_HAZARDS.filter((h) => inBbox(h.pos, city.bbox)) : []
+    const fallback = (why) => {
+      setHazards(demoHere)
+      setHazardSource(demoHere.length ? `${why}: segnalazioni demo` : `${why} a ${city.name}`)
+    }
+    trafficIncidents(city.bbox)
       .then((live) => {
         if (live.length) {
           setHazards(live)
           setHazardSource(`${live.length} segnalazioni TomTom in tempo reale`)
-        } else {
-          setHazards(DEMO_HAZARDS)
-          setHazardSource(hasTomTom ? 'Nessun cantiere live: segnalazioni demo' : 'Cantieri: segnalazioni demo')
-        }
+        } else fallback(hasTomTom ? 'Nessun cantiere segnalato' : 'Cantieri non disponibili')
       })
-      .catch(() => {
-        setHazards(DEMO_HAZARDS)
-        setHazardSource('TomTom non raggiungibile: dati demo')
-      })
-  }, [])
+      .catch(() => fallback('Cantieri non disponibili'))
+  }, [city])
 
   const planRoute = useCallback(
     async (query, from = origin, { silent = false } = {}) => {
@@ -137,7 +169,7 @@ export default function App() {
       setMessage(`Cerco "${label}"…`)
       if (!silent) speak(`Cerco ${label}`)
       try {
-        const dest = typeof query === 'string' ? await geocode(query, from) : query
+        const dest = typeof query === 'string' ? await geocode(query, from, city) : query
         if (haversine(from, dest.pos) < 30) {
           const msg = `Sei già ${dest.to || `a ${dest.name}`}!`
           setMessage(msg)
@@ -171,7 +203,7 @@ export default function App() {
         setLoading(false)
       }
     },
-    [origin, hazards, saved.findPlace, weather]
+    [origin, hazards, saved.findPlace, weather, city]
   )
 
   const openHistory = useCallback(() => {
@@ -279,6 +311,7 @@ export default function App() {
   const home = saved.places.find((p) => p.key === 'casa')
 
   const mapProps = {
+    center: city.center,
     hazards,
     route,
     points,
@@ -301,7 +334,13 @@ export default function App() {
           </span>
           <div>
             <h1>Sicuro oggi</h1>
-            <small>{CITY.name} · pilota Comune di Gattapelata</small>
+            <button
+              className="town-btn"
+              onClick={() => setShowTown('change')}
+              aria-label={`Paese: ${city.name}. Cambia paese`}
+            >
+              📍 {city.name} <span aria-hidden>▾</span>
+            </button>
           </div>
         </div>
         <nav className="top-actions" aria-label="Menu">
@@ -503,57 +542,83 @@ export default function App() {
         )}
 
         <details className="settings">
-          <summary>Impostazioni demo</summary>
-          <label>
-            <input
-              type="radio"
-              name="mode"
-              checked={mode === 'demo'}
-              onChange={() => {
-                stop()
-                setMode('demo')
-              }}
-            />{' '}
-            Cammino simulato (presentazione)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="mode"
-              checked={mode === 'gps'}
-              onChange={() => {
-                stop()
-                setMode('gps')
-              }}
-            />{' '}
-            GPS reale {mode === 'gps' && gps.accuracy ? `(±${Math.round(gps.accuracy)} m)` : ''}
-          </label>
-          <label>
-            <input type="checkbox" checked={simRain} onChange={(e) => setSimRain(e.target.checked)} /> Simula pioggia
-            (presentazione)
-          </label>
-          {mode === 'demo' && (
-            <label>
-              Velocità simulazione: ×{speedFactor}
-              <input
-                type="range"
-                min="1"
-                max="20"
-                value={speedFactor}
-                onChange={(e) => setSpeedFactor(+e.target.value)}
-              />
-            </label>
+          <summary>Impostazioni</summary>
+          <div className="setting-row">
+            <span>
+              📍 Paese: <strong>{city.name}</strong>
+            </span>
+            <button className="btn-link" onClick={() => setShowTown('change')}>
+              Cambia
+            </button>
+          </div>
+          {DEMO_ENABLED && (
+            <>
+              <p className="demo-note">Strumenti di demo (solo in locale)</p>
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={mode === 'demo'}
+                  onChange={() => {
+                    stop()
+                    changeMode('demo')
+                  }}
+                />{' '}
+                Cammino simulato (presentazione)
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={mode === 'gps'}
+                  onChange={() => {
+                    stop()
+                    changeMode('gps')
+                  }}
+                />{' '}
+                GPS reale {mode === 'gps' && gps.accuracy ? `(±${Math.round(gps.accuracy)} m)` : ''}
+              </label>
+              <label>
+                <input type="checkbox" checked={simRain} onChange={(e) => setSimRain(e.target.checked)} /> Simula pioggia
+                (presentazione)
+              </label>
+              {mode === 'demo' && (
+                <label>
+                  Velocità simulazione: ×{speedFactor}
+                  <input
+                    type="range"
+                    min="1"
+                    max="20"
+                    value={speedFactor}
+                    onChange={(e) => setSpeedFactor(+e.target.value)}
+                  />
+                </label>
+              )}
+            </>
           )}
         </details>
       </section>
 
       {showTutorial && <Tutorial onDone={closeTutorial} />}
+      {showTown && (
+        <TownPicker
+          current={city}
+          welcome={showTown === 'welcome'}
+          onSelect={(t) => {
+            setCity(t)
+            if (route) stop()
+            closeTown()
+          }}
+          onClose={closeTown}
+        />
+      )}
       {showWeather && <WeatherPanel weather={weather} error={weatherError} onClose={() => setShowWeather(false)} />}
       {showSave && (
         <SavePlaceSheet
           welcome={showSave === 'welcome'}
-          near={origin || CITY.center}
-          simulatedPos={mode === 'demo' ? DEMO_START : null}
+          near={origin || city.center}
+          city={city}
+          simulatedPos={DEMO_ENABLED && mode === 'demo' ? demoStart : null}
           onPreview={setPreview}
           onSave={(p) => {
             saved.savePlace(p)
